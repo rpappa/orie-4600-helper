@@ -1,0 +1,120 @@
+<html>
+    <head>
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+
+        <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+        <script src="https://unpkg.com/vue-prism-editor"></script>
+        <link rel="stylesheet" href="https://unpkg.com/vue-prism-editor/dist/prismeditor.min.css" />
+
+        <!-- custom highlighter: -->
+        <script src="https://unpkg.com/prismjs/prism.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.css" />
+
+        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+
+        <link rel="stylesheet" href="./style.css" />
+        <title>4600 Helper</title>
+    </head>
+    <body>
+        <div id="app">
+            <span class="title">4600 Helper</span> <br>
+            <span class="show-help" v-on:click="displayHelp">How to use</span> <br>
+            <a href="https://github.com/rpappa/orie-4600-helper">Source</a> <br>
+            <hr>
+            <span>S<sub>0</sub></span> <input v-model="s0"/>
+            <span>u</span> <input v-model="up"/>
+            <span>d</span> <input v-model="down"/>
+            <span>r</span><input v-model="riskfree"/>
+            <br>
+            <span>N</span><input v-model="periods" type="number"/>
+                
+
+            <div class="table">
+                <table>
+                    <h4>Table</h4>
+                    <h4>LaTeX</h4>
+                    <tr v-for="price of pricesForTable">
+                        <td v-html="price[0]"></td>
+                        <td>{{price[1]}}</td>
+                    </tr>
+                </table>
+                <pre>
+{{ pricesLatex }}
+                </pre>
+            </div>
+
+            <span>p̃ = {{pHatQHat[0]}}</span> <br> <span>q̃ = {{pHatQHat[1]}}</span><br>
+
+            <hr>
+
+            <span>K</span><input v-model="K" type="number"/><br>
+            <span>American?</span><input v-model="isAmerican" type="checkbox"/><br>
+            
+            <span>Function examples:</span><br>
+            <button v-on:click="fillCode('call')">Call (Reset IV)</button>
+            <button v-on:click="fillCode('put')">Put</button>
+            <button v-on:click="fillCode('straddle')">Straddle</button>
+            <button v-on:click="fillCode('payments')">Payments</button>
+
+<pre>
+/**
+K: number is the strike price
+s: number[] is the stock prices up to n
+n: the period
+N: total periods
+flips: string the coin flip sequence, for example HTH
+*/
+function IV(K, s, n, N, flips) {</pre>
+            <prism-editor :highlight="highlighter" v-model="code" class="code-editor" line-number></prism-editor>
+<pre>
+    <button v-on:click="fillCode('reset')">Reset Exercise</button>
+/**
+K: number is the strike price
+s: number[] is the stock prices up to n
+n: the period
+N: total periods,
+flips: string the coin flip sequence, for example HTH
+vn: fraction the value at time n computed with risk-free probabilities
+gn: fraction the iv at time n
+isAmerican: boolean if the option is american
+*/
+function exercise(K, s, n, N, flips, vn, gn, isAmerican) {</pre>
+            <prism-editor :highlight="highlighter" v-model="exerciseCode" class="code-editor" line-number></prism-editor>
+            <div class="table">
+                <table>
+                    <h4>Table</h4>
+                    <h4>LaTeX</h4>
+                    <tr v-for="price of valuesForTable">
+                        <td v-html="price[0]"></td>
+                        <td>{{price[1]}}</td>
+                    </tr>
+                </table>
+<pre>
+{{ valuesLatex }}
+</pre>
+            </div>
+
+            <div v-if="showHelp" class="help" v-on:click.self="showHelp = false">
+                <div>
+                    <h3>Stock Prices</h3>
+                    <span>This is straighforward. Enter initial price (S<sub>0</sub>), up (u), down (d), the risk free rate (r), and the number of periods (N).</span> <br><br>
+                    <span>The stock prices will be output both as a table and as LaTeX. Risk neutral probabilities are output as well</span>
+
+                    <h3>Option values</h3>
+                    <span>Functions for IV and the perhaps poorly named "exercise" function are used to find the option prices.</span><br><br>
+                    <span>There are examples given for calls and puts, which should work by just entering a strike (K) and selecting
+                        whether the option is American or not.
+                    </span><br><br>
+                    <span>
+                        If interested in coding your own functions you should see the source code for how option values are calculated (in main.js).
+                        It largely relies on math.js. Check out the docs <a href="https://mathjs.org/docs/index.html">here</a>.
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://unpkg.com/mathjs@9.3.0/lib/browser/math.js"></script>
+        <script src="main.js"></script>
+    </body>
+</html>
