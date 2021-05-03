@@ -85,12 +85,12 @@ const app = new Vue({
             for (let i = 0; i < periods.length; i++) {
                 if (i === 0) {
                     periods[i] = {
-                        '': this.s0
+                        '': this.s0 || '0'
                     }
                 } else {
                     console.log(Object.entries(periods[i - 1]));
-                    const up = math.fraction(this.up);
-                    const down = math.fraction(this.down);
+                    const up = math.fraction(this.up || '0');
+                    const down = math.fraction(this.down || '0');
                     const nextSequence = Object.entries(periods[i - 1])
                         .map(([seq, val]) => [[seq + 'H', math.multiply(math.fraction(val), up).toFraction()],
                         [seq + 'T', math.multiply(math.fraction(val), down).toFraction()]]).flat();
@@ -128,7 +128,8 @@ const app = new Vue({
                     return Object.entries(p).map(([seq, val]) => ([`S<sub>${i}</sub>(${seq})`, `${val}`]))
                 }).flat();
             } catch (e) {
-
+                console.error(e);
+                return []
             }
         },
         /*
@@ -225,7 +226,8 @@ const app = new Vue({
                     return Object.entries(p).map(([seq, val]) => ([`V<sub>${i}</sub>(${seq})`, `${val}`]))
                 }).flat();
             } catch (e) {
-
+                console.error(e);
+                return []
             }
         }
     },
