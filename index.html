@@ -22,6 +22,7 @@
             <span class="show-help" v-on:click="displayHelp">How to use</span> <br>
             <a href="https://github.com/rpappa/orie-4600-helper">Source</a> <br>
             <hr>
+            <span>Display fractions?</span><input v-model="useFractions" type="checkbox" /> <br>
             <span>S<sub>0</sub></span> <input v-model="s0"/>
             <span>u</span> <input v-model="up"/>
             <span>d</span> <input v-model="down"/>
@@ -44,7 +45,7 @@
                 </pre>
             </div>
 
-            <span>p̃ = {{pHatQHat[0]}}</span> <br> <span>q̃ = {{pHatQHat[1]}}</span><br>
+            <span>p̃ = {{pHatQHatDisplay[0]}}</span> <br> <span>q̃ = {{pHatQHatDisplay[1]}}</span><br>
 
             <hr>
 

@@ -74,30 +74,36 @@ const app = new Vue({
         isAmerican: false,
         code: CALL_EXAMPLE,
         exerciseCode: EXERCISE_EXAMPLE,
-        showHelp: false
+        showHelp: false,
+        useFractions: true
     },
     computed: {
         /**
          * Get stock price tree
          */
         stockPrices: function () {
-            const periods = new Array(parseInt(`${this.periods}`) + 1).fill(undefined);
-            for (let i = 0; i < periods.length; i++) {
-                if (i === 0) {
-                    periods[i] = {
-                        '': this.s0 || '0'
+            try {
+                const periods = new Array(parseInt(`${this.periods}`) + 1).fill(undefined);
+                for (let i = 0; i < periods.length; i++) {
+                    if (i === 0) {
+                        periods[i] = {
+                            '': this.s0 || '0'
+                        }
+                    } else {
+                        console.log(Object.entries(periods[i - 1]));
+                        const up = math.fraction(this.up || '0');
+                        const down = math.fraction(this.down || '0');
+                        const nextSequence = Object.entries(periods[i - 1])
+                            .map(([seq, val]) => [[seq + 'H', math.multiply(math.fraction(val), up).toFraction()],
+                            [seq + 'T', math.multiply(math.fraction(val), down).toFraction()]]).flat();
+                        periods[i] = Object.fromEntries(nextSequence);
                     }
-                } else {
-                    console.log(Object.entries(periods[i - 1]));
-                    const up = math.fraction(this.up || '0');
-                    const down = math.fraction(this.down || '0');
-                    const nextSequence = Object.entries(periods[i - 1])
-                        .map(([seq, val]) => [[seq + 'H', math.multiply(math.fraction(val), up).toFraction()],
-                        [seq + 'T', math.multiply(math.fraction(val), down).toFraction()]]).flat();
-                    periods[i] = Object.fromEntries(nextSequence);
                 }
+                return periods;
+            } catch (e) {
+                console.error(e);
+                return []
             }
-            return periods;
         },
         /*
         * Get stock price latex
@@ -107,10 +113,12 @@ const app = new Vue({
             \\hline
             ${this.stockPrices.map((p, i) => {
                 if (i === 0) {
-                    return `$S_0$ & $${p['']}$`
+                    return `$S_0$ & $${this.useFractions ? p[''] : Math.floor(math.fraction(p['']).valueOf() * 100) / 100}$`
                 } else {
                     console.log(Object.entries(p))
-                    return Object.entries(p).map(([seq, val]) => `$S_${i}(${seq})$ & $${val}$`).join('\\\\\n')
+                    return Object.entries(p)
+                        .map(([seq, val]) => [seq, this.useFractions ? val : Math.floor(math.fraction(val).valueOf() * 100) / 100])
+                        .map(([seq, val]) => `$S_${i}(${seq})$ & $${val}$`).join('\\\\\n')
                 }
             }).join('\\\\\n\\hline\n')}
             \\\\\n\\hline
@@ -123,9 +131,11 @@ const app = new Vue({
             try {
                 return this.stockPrices.map((p, i) => {
                     if(i === 0) {
-                        return [[`S<sub>0</sub>`, p['']]]
+                        return [[`S<sub>0</sub>`, this.useFractions ? p[''] : Math.floor(math.fraction(p['']).valueOf() * 100) / 100]]
                     }
-                    return Object.entries(p).map(([seq, val]) => ([`S<sub>${i}</sub>(${seq})`, `${val}`]))
+                    return Object.entries(p)
+                        .map(([seq, val]) => [seq, this.useFractions ? val : Math.floor(math.fraction(val).valueOf() * 100) / 100])
+                        .map(([seq, val]) => ([`S<sub>${i}</sub>(${seq})`, `${val}`]))
                 }).flat();
             } catch (e) {
                 console.error(e);
@@ -146,6 +156,13 @@ const app = new Vue({
                     math.subtract(math.fraction(this.up), math.fraction(this.down))
                 ).toFraction()
             ]
+        },
+        pHatQHatDisplay: function() {
+            if(this.useFractions) {
+                return this.pHatQHat;
+            }
+            return this.pHatQHat.map(f => math.fraction(f).valueOf())
+                .map(x => Math.floor(x * 100) / 100)
         },
         /*
         * Option value tree
@@ -202,10 +219,12 @@ const app = new Vue({
                 \\hline
                 ${this.optionValues.map((p, i) => {
                     if (i === 0) {
-                        return `$V_0$ & $${p['']}$`
+                        return `$V_0$ & $${this.useFractions ? p[''] : Math.floor(math.fraction(p['']).valueOf() * 100) / 100}$`
                     } else {
                         console.log(Object.entries(p))
-                        return Object.entries(p).map(([seq, val]) => `$V_${i}(${seq})$ & $${val}$`).join('\\\\\n')
+                        return Object.entries(p)
+                            .map(([seq, val]) => [seq, this.useFractions ? val : Math.floor(math.fraction(val).valueOf() * 100) / 100])
+                            .map(([seq, val]) => `$V_${i}(${seq})$ & $${val}$`).join('\\\\\n')
                     }
                 }).join('\\\\\n\\hline\n')}
                 \\\\\n\\hline
@@ -221,9 +240,11 @@ const app = new Vue({
             try {
                 return this.optionValues.map((p, i) => {
                     if(i === 0) {
-                        return [[`V<sub>0</sub>`, p['']]]
+                        return [[`V<sub>0</sub>`, this.useFractions ? p[''] : Math.floor(math.fraction(p['']).valueOf() * 100) / 100]]
                     }
-                    return Object.entries(p).map(([seq, val]) => ([`V<sub>${i}</sub>(${seq})`, `${val}`]))
+                    return Object.entries(p)
+                        .map(([seq, val]) => [seq, this.useFractions ? val : Math.floor(math.fraction(val).valueOf() * 100) / 100])
+                        .map(([seq, val]) => ([`V<sub>${i}</sub>(${seq})`, `${val}`]))
                 }).flat();
             } catch (e) {
                 console.error(e);
